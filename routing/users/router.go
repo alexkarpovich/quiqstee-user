@@ -1,4 +1,4 @@
-package routing
+package users
 
 import (
   "github.com/gorilla/mux"
@@ -6,7 +6,7 @@ import (
 
 type UserHandler struct {}
 
-func UserRouter(r *mux.Router) {
+func Router(r *mux.Router) {
   s := r.PathPrefix("/users").Subrouter()
   userHandler := new(UserHandler)
 
@@ -14,5 +14,3 @@ func UserRouter(r *mux.Router) {
   s.HandleFunc("/login", userHandler.Login).Methods("POST")
   s.HandleFunc("/logout", userHandler.Login).Methods("POST")
 }
-
-func Dno() {}

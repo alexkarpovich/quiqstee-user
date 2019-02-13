@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/alexkarpovich/quiqstee-user/service"
+	"github.com/alexkarpovich/quiqstee-user/service"
 )
 
 func main() {

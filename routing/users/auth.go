@@ -1,4 +1,4 @@
-package routing
+package users
 
 import (
   "net/http"

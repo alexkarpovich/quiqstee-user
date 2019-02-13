@@ -8,19 +8,18 @@ import (
 )
 
 func router() http.Handler {
-    apiRouter := mux.NewRouter().StrictSlash(true).PathPrefix("/api").Subrouter()
-    //UserRouter(apiRouter)
-    users.Dno()
-    return apiRouter
+  apiRouter := mux.NewRouter().StrictSlash(true).PathPrefix("/api").Subrouter()
+  users.Router(apiRouter)
+  return apiRouter
 }
 
 func ListenAndServe(address string) error {
   server := &http.Server{
-		ReadTimeout:  15 * time.Second,
+		ReadTimeout: 15 * time.Second,
 		WriteTimeout: 15 * time.Second,
-		IdleTimeout:   60 * time.Second,
-		Handler:      router(),
-		Addr:         address,
+		IdleTimeout: 60 * time.Second,
+		Handler: router(),
+		Addr: address,
 	}
 
 	return server.ListenAndServe()
