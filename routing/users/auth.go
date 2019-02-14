@@ -25,7 +25,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
   user := models.User{Email: sus.Email, Password: sus.Password}
   database.Db.Create(&user)
 
-  json.NewEncoder(w).Encode(string(user.ID) + " " + user.Email + " " + user.PasswordHash)
+  json.NewEncoder(w).Encode(user)
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {

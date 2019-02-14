@@ -1,23 +1,25 @@
 package models
 
 import (
-  "log"
+  "time"
   "github.com/jinzhu/gorm"
   "golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-  gorm.Model
+  ID uint `json:"id";gorm:"primary_key"`
+  CreatedAt time.Time `json:"createdAt"`
+  UpdatedAt time.Time `json:"updatedAt"`
+  DeletedAt *time.Time `json:"deletedAt"`
   Email string `json:"email"`
   Phone string `json:"phone"`
-  Password string `gorm:"-"` // Ignore this field
+  Password string `json:"-";gorm:"-"` // Ignore this field
   PasswordHash string `json:"-"` //omit passwordhash field
   FirstName string `json:"firstName"`
   LastName string `json:"lastName"`
 }
 
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
-  log.Printf("Hello")
   bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 
   if err != nil {

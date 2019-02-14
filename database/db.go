@@ -4,7 +4,6 @@ import (
   "os"
   "fmt"
   "log"
-
   "github.com/jinzhu/gorm"
   _ "github.com/jinzhu/gorm/dialects/postgres"
   "github.com/alexkarpovich/quiqstee-user/database/models"
@@ -25,7 +24,7 @@ func InitDB() {
   if err != nil {
       log.Fatal(err)
   }
-  // defer Db.Close()
+  //defer Db.Close()
 
   db.AutoMigrate(&models.User{})
 
