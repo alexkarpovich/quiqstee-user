@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/alexkarpovich/quiqstee-user/service"
+	"github.com/alexkarpovich/quiqstee-user/database"
 )
 
 func main() {
 
-  service.InitDB()
+  database.InitDB()
 
   go StartApiServer();
   go StartGrpcServer();

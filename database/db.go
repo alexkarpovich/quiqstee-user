@@ -1,4 +1,4 @@
-package service
+package database
 
 import (
   "os"
@@ -7,8 +7,10 @@ import (
 
   "github.com/jinzhu/gorm"
   _ "github.com/jinzhu/gorm/dialects/postgres"
-  "github.com/alexkarpovich/quiqstee-user/models"
+  "github.com/alexkarpovich/quiqstee-user/database/models"
 )
+
+var Db *gorm.DB
 
 func InitDB() {
   params := fmt.Sprintf(
@@ -23,7 +25,9 @@ func InitDB() {
   if err != nil {
       log.Fatal(err)
   }
-  defer db.Close()
+  // defer Db.Close()
 
   db.AutoMigrate(&models.User{})
+
+  Db = db
 }
