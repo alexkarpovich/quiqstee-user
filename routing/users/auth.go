@@ -3,6 +3,7 @@ package users
 import (
   "net/http"
   "encoding/json"
+  "github.com/alexkarpovich/quiqstee-user/lib"
   "github.com/alexkarpovich/quiqstee-user/database"
   "github.com/alexkarpovich/quiqstee-user/database/models"
   "github.com/alexkarpovich/quiqstee-user/requests/structs"
@@ -22,10 +23,15 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  user := models.User{Email: sus.Email, Password: sus.Password}
+  user := models.User{
+    Email: sus.Email,
+    Password: sus.Password,
+    FirstName: sus.FirstName,
+    LastName: sus.LastName,
+  }
   database.Db.Create(&user)
 
-  json.NewEncoder(w).Encode(user)
+  json.NewEncoder(w).Encode(map[string]string{"token": lib.NewToken(&user)})
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {

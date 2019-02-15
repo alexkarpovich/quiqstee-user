@@ -1,6 +1,7 @@
 package models
 
 import (
+  "fmt"
   "time"
   "github.com/jinzhu/gorm"
   "golang.org/x/crypto/bcrypt"
@@ -35,4 +36,8 @@ func (user *User) CheckPassword(password string) bool {
   err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 
   return err == nil
+}
+
+func (user *User) FullName() string {
+  return fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 }

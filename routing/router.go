@@ -1,6 +1,7 @@
 package routing
 
 import (
+  "os"
   "time"
   "net/http"
   "encoding/json"
@@ -27,11 +28,14 @@ func ListenAndServe(address string) error {
   originsOk := handlers.AllowedOrigins([]string{"*"})
   methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
 
+  corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)
+  loggedRouter := handlers.LoggingHandler(os.Stdout, router())
+
   server := &http.Server{
 		ReadTimeout: 15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout: 60 * time.Second,
-		Handler: handlers.CORS(headersOk, originsOk, methodsOk)(router()),
+		Handler: corsHandler(loggedRouter),
 		Addr: address,
 	}
 
