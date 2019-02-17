@@ -12,5 +12,4 @@ func Router(r *mux.Router) {
 
   s.HandleFunc("/signup", userHandler.Signup).Methods("POST")
   s.HandleFunc("/login", userHandler.Login).Methods("POST")
-  s.HandleFunc("/logout", userHandler.Logout).Methods("POST")
 }

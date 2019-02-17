@@ -1,6 +1,7 @@
 package users
 
 import (
+  "log"
   "net/http"
   "encoding/json"
   "github.com/alexkarpovich/quiqstee-user/lib"
@@ -11,15 +12,14 @@ import (
 
 func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
   var sus structs.Signup
-  decoder := json.NewDecoder(r.Body)
-  err := decoder.Decode(&sus)
+  err := json.NewDecoder(r.Body).Decode(&sus)
   if err != nil {
-      json.NewEncoder(w).Encode("Invalid request data")
-      return
+    lib.SendJsonError(w, "Invalid request data", http.StatusBadRequest)
+    return
   }
 
   if !sus.Validate() {
-    json.NewEncoder(w).Encode("User already exists")
+    lib.SendJsonError(w, "User already exists", http.StatusBadRequest)
     return
   }
 
@@ -31,13 +31,25 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
   }
   database.Db.Create(&user)
 
-  json.NewEncoder(w).Encode(map[string]string{"token": lib.NewToken(&user)})
+  lib.SendJson(w, map[string]string{"token": lib.NewToken(&user)}, http.StatusOK)
 }
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+  var lis structs.Login
+  var user models.User
+  s, _ := r.Context().Value("user").(*models.User)
+  log.Printf("LOGGED_IN_USER: %s", s)
+  err := json.NewDecoder(r.Body).Decode(&lis)
+  if err != nil {
+    lib.SendJsonError(w, "Invalid request data.", http.StatusBadRequest)
+    return
+  }
 
-}
+  if !lis.Validate() {
+    lib.SendJsonError(w, "Email or password is wrong.", http.StatusBadRequest)
+    return
+  }
 
-func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
-
+  database.Db.Where(&models.User{Email: lis.Email}).First(&user)
+  lib.SendJson(w, map[string]string{"token": lib.NewToken(&user)}, http.StatusOK)
 }
