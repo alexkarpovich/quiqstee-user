@@ -8,14 +8,14 @@ import (
   "github.com/urfave/negroni"
   "github.com/alexkarpovich/quiqstee-user/lib"
   "github.com/alexkarpovich/quiqstee-user/middlewares"
-  "github.com/alexkarpovich/quiqstee-user/routing/users"
+  "github.com/alexkarpovich/quiqstee-user/routing/accounts"
 )
 
 func router() http.Handler {
   apiRouter := mux.NewRouter().StrictSlash(true).PathPrefix("/api").Subrouter()
   apiRouter.HandleFunc("/healthcheck", healthCheck).Methods("GET")
 
-  users.Router(apiRouter)
+  accounts.Router(apiRouter)
 
   return apiRouter
 }
@@ -32,7 +32,7 @@ func ListenAndServe(address string) error {
   corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)(router())
 
   n := negroni.Classic()
-  n.Use(negroni.Wrap(middlewares.User(corsHandler)))
+  n.Use(negroni.Wrap(middlewares.CurrentUser(corsHandler)))
 
   server := &http.Server{
 		ReadTimeout: 15 * time.Second,

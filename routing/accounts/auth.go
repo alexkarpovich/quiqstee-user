@@ -1,4 +1,4 @@
-package users
+package accounts
 
 import (
   "log"
@@ -10,7 +10,7 @@ import (
   "github.com/alexkarpovich/quiqstee-user/requests/structs"
 )
 
-func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) Signup(w http.ResponseWriter, r *http.Request) {
   var sus structs.Signup
   err := json.NewDecoder(r.Body).Decode(&sus)
   if err != nil {
@@ -34,7 +34,7 @@ func (h *UserHandler) Signup(w http.ResponseWriter, r *http.Request) {
   lib.SendJson(w, map[string]string{"token": lib.NewToken(&user)}, http.StatusOK)
 }
 
-func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
   var lis structs.Login
   var user models.User
   s, _ := r.Context().Value("user").(*models.User)

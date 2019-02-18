@@ -9,7 +9,7 @@ import (
   "github.com/alexkarpovich/quiqstee-user/database/models"
 )
 
-func User(next http.Handler) http.Handler {
+func CurrentUser(next http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
     var user models.User
@@ -19,14 +19,14 @@ func User(next http.Handler) http.Handler {
       splitToken := strings.Split(reqToken, "Bearer ")
       reqToken = splitToken[1]
 
-      userId := lib.GetTokenClaims(reqToken)
-      err := database.Db.Where(&models.User{ID: userId}).First(&user)
+      claims := lib.GetTokenClaims(reqToken)
+      database.Db.First(&user, claims.Uid)
 
-      if err == nil {
-        ctx := context.WithValue(r.Context(), "user", user)
+      if user.ID != 0 {
+        ctx := context.WithValue(r.Context(), "user", &user)
 
         r = r.WithContext(ctx)
-      }      
+      }
     }
 
     next.ServeHTTP(w, r)

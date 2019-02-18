@@ -1,4 +1,4 @@
-package users
+package accounts
 
 import (
   "log"
@@ -7,7 +7,7 @@ import (
   "github.com/alexkarpovich/quiqstee-user/database/models"
 )
 
-func (h *UserHandler) View(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) View(w http.ResponseWriter, r *http.Request) {
   var user models.User
   s, _ := r.Context().Value("user").(*models.User)
   log.Printf("LOGGED_IN_USER: %s", s)

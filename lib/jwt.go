@@ -10,7 +10,9 @@ import (
 
 type TokenClaims struct {
   jwt.StandardClaims
-  User uint `json:"user"`
+  Uid uint `json:"uid"`
+  Name string `json:"name"`
+  Img string `json:"img"`
 }
 
 func NewToken(user *models.User) string {
@@ -20,6 +22,8 @@ func NewToken(user *models.User) string {
       Issuer: "quiqstee-user",
     },
     user.ID,
+    user.FullName(),
+    "http://icons.iconarchive.com/icons/paomedia/small-n-flat/256/sign-info-icon.png",
   })
 
   tokenString, err := token.SignedString([]byte("mySigningKey"))
@@ -30,7 +34,7 @@ func NewToken(user *models.User) string {
   return tokenString
 }
 
-func GetTokenClaims(tokenString string) uint {
+func GetTokenClaims(tokenString string) *TokenClaims {
   token, _ := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
         return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -41,8 +45,8 @@ func GetTokenClaims(tokenString string) uint {
   })
 
   if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
-      return claims.User
+      return claims
   }
 
-  return 0
+  return nil
 }
