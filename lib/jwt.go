@@ -10,7 +10,7 @@ import (
 
 type TokenClaims struct {
   jwt.StandardClaims
-  User *models.User `json:"user"`
+  User uint `json:"user"`
 }
 
 func NewToken(user *models.User) string {
@@ -19,7 +19,7 @@ func NewToken(user *models.User) string {
       ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
       Issuer: "quiqstee-user",
     },
-    user,
+    user.ID,
   })
 
   tokenString, err := token.SignedString([]byte("mySigningKey"))
@@ -30,7 +30,7 @@ func NewToken(user *models.User) string {
   return tokenString
 }
 
-func GetTokenClaims(tokenString string) *models.User {
+func GetTokenClaims(tokenString string) uint {
   token, _ := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
         return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -44,5 +44,5 @@ func GetTokenClaims(tokenString string) *models.User {
       return claims.User
   }
 
-  return nil
+  return 0
 }
