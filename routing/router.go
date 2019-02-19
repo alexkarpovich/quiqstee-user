@@ -6,22 +6,19 @@ import (
   "github.com/gorilla/mux"
   "github.com/gorilla/handlers"
   "github.com/urfave/negroni"
-  "github.com/alexkarpovich/quiqstee-user/lib"
   "github.com/alexkarpovich/quiqstee-user/middlewares"
+  "github.com/alexkarpovich/quiqstee-user/routing/common"
   "github.com/alexkarpovich/quiqstee-user/routing/accounts"
 )
 
 func router() http.Handler {
-  apiRouter := mux.NewRouter().StrictSlash(true).PathPrefix("/api").Subrouter()
-  apiRouter.HandleFunc("/healthcheck", healthCheck).Methods("GET")
+    baseRouter := mux.NewRouter().StrictSlash(true)
+    common.Router(baseRouter)
 
-  accounts.Router(apiRouter)
+    apiRouter := baseRouter.PathPrefix("/api").Subrouter()
+    accounts.Router(apiRouter)
 
-  return apiRouter
-}
-
-func healthCheck(w http.ResponseWriter, r *http.Request) {
-    lib.SendJson(w, "Still alive!", http.StatusOK)
+    return baseRouter
 }
 
 func ListenAndServe(address string) error {

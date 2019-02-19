@@ -1,15 +1,18 @@
 package main
 
 import (
+    "sync"
 	"github.com/alexkarpovich/quiqstee-user/database"
 )
 
 func main() {
+    var wg sync.WaitGroup
 
-  database.InitDB()
+    database.InitDB()
+    wg.Add(1)
+    go StartApiServer();
+    wg.Add(2)
+    go StartGrpcServer();
 
-  go StartApiServer();
-  go StartGrpcServer();
-
-  for {}
+    wg.Wait()
 }

@@ -1,7 +1,6 @@
 package accounts
 
 import (
-  "log"
   "net/http"
   "encoding/json"
   "github.com/alexkarpovich/quiqstee-user/lib"
@@ -13,6 +12,7 @@ import (
 func (h *AccountHandler) Signup(w http.ResponseWriter, r *http.Request) {
   var sus structs.Signup
   err := json.NewDecoder(r.Body).Decode(&sus)
+  defer r.Body.Close()
   if err != nil {
     lib.SendJsonError(w, "Invalid request data", http.StatusBadRequest)
     return
@@ -37,9 +37,8 @@ func (h *AccountHandler) Signup(w http.ResponseWriter, r *http.Request) {
 func (h *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
   var lis structs.Login
   var user models.User
-  s, _ := r.Context().Value("user").(*models.User)
-  log.Printf("LOGGED_IN_USER: %s", s)
   err := json.NewDecoder(r.Body).Decode(&lis)
+  defer r.Body.Close()
   if err != nil {
     lib.SendJsonError(w, "Invalid request data.", http.StatusBadRequest)
     return
