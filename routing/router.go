@@ -1,43 +1,51 @@
 package routing
 
 import (
-  "time"
-  "net/http"
-  "github.com/gorilla/mux"
-  "github.com/gorilla/handlers"
-  "github.com/urfave/negroni"
-  "github.com/alexkarpovich/quiqstee-user/middlewares"
-  "github.com/alexkarpovich/quiqstee-user/routing/common"
-  "github.com/alexkarpovich/quiqstee-user/routing/accounts"
+    "log"
+    "time"
+    "net/http"
+    "github.com/gorilla/mux"
+    "github.com/gorilla/handlers"
+    "github.com/justinas/alice"
+    "github.com/casbin/casbin"
+    "github.com/alexkarpovich/quiqstee-user/middlewares"
+    "github.com/alexkarpovich/quiqstee-user/routing/root"
+    "github.com/alexkarpovich/quiqstee-user/routing/accounts"
 )
 
 func router() http.Handler {
     baseRouter := mux.NewRouter().StrictSlash(true)
-    common.Router(baseRouter)
-
-    apiRouter := baseRouter.PathPrefix("/api").Subrouter()
-    accounts.Router(apiRouter)
+    root.Router(baseRouter)
+    accounts.Router(baseRouter)
 
     return baseRouter
 }
 
 func ListenAndServe(address string) error {
-  headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
-  originsOk := handlers.AllowedOrigins([]string{"*"})
-  methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
+    authEnforcer, err := casbin.NewEnforcerSafe("./config/auth_model.conf", "./config/policy.csv")
+    if err != nil {
+        log.Fatal(err)
+    }
 
-  corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)(router())
+    headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+    originsOk := handlers.AllowedOrigins([]string{"*"})
+    methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
 
-  n := negroni.Classic()
-  n.Use(negroni.Wrap(middlewares.CurrentUser(corsHandler)))
+    corsHandler := handlers.CORS(headersOk, originsOk, methodsOk)
+    authorizeHandler := middlewares.Authorizer(authEnforcer)
+    chain := alice.New(
+        corsHandler,
+        middlewares.CurrentUser,
+        authorizeHandler,
+    ).Then(router())
 
-  server := &http.Server{
-		ReadTimeout: 15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout: 60 * time.Second,
-		Handler: n,
-		Addr: address,
-	}
+    server := &http.Server{
+    	ReadTimeout: 15 * time.Second,
+    	WriteTimeout: 15 * time.Second,
+    	IdleTimeout: 60 * time.Second,
+    	Handler: chain,
+    	Addr: address,
+    }
 
 	return server.ListenAndServe()
 }

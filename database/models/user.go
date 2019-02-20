@@ -7,6 +7,14 @@ import (
   "golang.org/x/crypto/bcrypt"
 )
 
+type UserRole string
+
+const (
+    Anonymous UserRole = "anonymous"
+    Admin UserRole = "admin"
+    Memeber UserRole = "member"
+)
+
 type User struct {
   ID uint `json:"id";gorm:"primary_key"`
   CreatedAt time.Time `json:"createdAt"`
@@ -18,6 +26,7 @@ type User struct {
   PasswordHash string `json:"-"` //omit passwordhash field
   FirstName string `json:"firstName"`
   LastName string `json:"lastName"`
+  Role UserRole `json:"role";gorm:"default:'member'"`
 }
 
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
