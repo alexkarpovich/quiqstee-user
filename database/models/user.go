@@ -8,11 +8,18 @@ import (
 )
 
 type UserRole string
+type UserStatus uint
 
 const (
     Anonymous UserRole = "anonymous"
     Admin UserRole = "admin"
-    Memeber UserRole = "member"
+    Member UserRole = "member"
+)
+
+const (
+    Inactive UserStatus = iota
+    Active
+    Deleted
 )
 
 type User struct {
@@ -27,6 +34,7 @@ type User struct {
   FirstName string `json:"firstName"`
   LastName string `json:"lastName"`
   Role UserRole `json:"role";gorm:"default:'member'"`
+  Status UserStatus `json:"status"`
 }
 
 func (user *User) BeforeCreate(scope *gorm.Scope) error {

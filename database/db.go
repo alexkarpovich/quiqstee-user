@@ -26,6 +26,7 @@ func InitDB() {
   }
   //defer Db.Close()
 
+  db.LogMode(true)
   db.AutoMigrate(&models.User{})
 
   Db = db

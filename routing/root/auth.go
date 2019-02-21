@@ -7,6 +7,7 @@ import (
   "github.com/alexkarpovich/quiqstee-user/database"
   "github.com/alexkarpovich/quiqstee-user/database/models"
   "github.com/alexkarpovich/quiqstee-user/requests/structs"
+  "github.com/alexkarpovich/quiqstee-user/service/email"
 )
 
 func (h *RootHandler) Signup(w http.ResponseWriter, r *http.Request) {
@@ -28,10 +29,13 @@ func (h *RootHandler) Signup(w http.ResponseWriter, r *http.Request) {
     Password: sus.Password,
     FirstName: sus.FirstName,
     LastName: sus.LastName,
+    Role: models.Member,
+    Status: models.Inactive,
   }
   database.Db.Create(&user)
+  go email.SendSignup(&user)
 
-  lib.SendJson(w, map[string]string{"token": lib.NewToken(&user)}, http.StatusOK)
+  lib.SendJson(w, "Success", http.StatusOK)
 }
 
 func (h *RootHandler) Login(w http.ResponseWriter, r *http.Request) {

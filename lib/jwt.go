@@ -34,19 +34,18 @@ func NewToken(user *models.User) string {
   return tokenString
 }
 
-func GetTokenClaims(tokenString string) *TokenClaims {
+func GetTokenClaims(tokenString string) (*TokenClaims, bool) {
   token, _ := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
     if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
         return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
     }
 
-    // hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
     return []byte("mySigningKey"), nil
   })
 
   if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
-      return claims
+      return claims, true
   }
 
-  return nil
+  return nil, false
 }
