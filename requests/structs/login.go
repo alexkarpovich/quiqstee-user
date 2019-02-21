@@ -13,7 +13,7 @@ type Login struct {
 func (l *Login) Validate() bool {
   var user models.User
 
-  database.Db.Where("email=?", l.Email).First(&user)
+  database.Db.Where("email=? and status=?", l.Email, models.Active).First(&user)
 
   return user.ID != 0 && user.CheckPassword(l.Password)
 }
