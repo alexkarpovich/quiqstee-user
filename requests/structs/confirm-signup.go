@@ -1,24 +1,25 @@
 package structs
 
 import (
-  "github.com/alexkarpovich/quiqstee-user/database"
-  "github.com/alexkarpovich/quiqstee-user/database/regs"
+    "time"
+    "github.com/alexkarpovich/quiqstee-user/database"
+    "github.com/alexkarpovich/quiqstee-user/database/regs"
 )
 
 type ConfirmSignup struct {
-  Email string
-  Password string
-  FirstName string
-  LastName string
-  Token string
+    Email string
+    Password string
+    FirstName string
+    LastName string
+    Token string
 }
 
 func (s *ConfirmSignup) Validate() bool {
-  var reg regs.Registration
+    var reg regs.Registration
 
-  database.Db.Where("token=? and expires_at > NOW()", s.Token).First(&reg)
+    database.Db.Where("token=? and expires_at > ?", s.Token, time.Now()).First(&reg)
 
-  s.Email = reg.Email
+    s.Email = reg.Email
 
-  return reg.ID != 0
+    return reg.ID != 0
 }

@@ -1,10 +1,9 @@
 package users
 
 import (
-  "fmt"
-  "time"
-  "github.com/jinzhu/gorm"
-  "golang.org/x/crypto/bcrypt"
+    "fmt"
+    "time"
+    "golang.org/x/crypto/bcrypt"
 )
 
 type UserRole string
@@ -23,38 +22,30 @@ const (
 )
 
 type User struct {
-  ID uint `json:"id";gorm:"primary_key"`
-  CreatedAt time.Time `json:"createdAt"`
-  UpdatedAt time.Time `json:"updatedAt"`
-  DeletedAt *time.Time `json:"deletedAt"`
-  Email string `json:"email"`
-  Phone string `json:"phone"`
-  Password string `json:"-";gorm:"-"` // Ignore this field
-  PasswordHash string `json:"-"` //omit passwordhash field
-  FirstName string `json:"firstName"`
-  LastName string `json:"lastName"`
-  Role UserRole `json:"role";gorm:"default:'member'"`
-  Status UserStatus `json:"status"`
+    ID uint `json:"id";gorm:"primary_key"`
+    CreatedAt time.Time `json:"createdAt"`
+    UpdatedAt time.Time `json:"updatedAt"`
+    DeletedAt *time.Time `json:"deletedAt"`
+    Email string `json:"email"`
+    Phone string `json:"phone"`
+    PasswordHash string `json:"-"` //omit passwordhash field
+    FirstName string `json:"firstName"`
+    LastName string `json:"lastName"`
+    Role UserRole `json:"role";gorm:"default:'member'"`
+    Status UserStatus `json:"status"`
 }
 
-func (user *User) BeforeCreate(scope *gorm.Scope) error {
-  bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
-
-  if err != nil {
-    panic(err)
-  }
-
-  scope.SetColumn("password_hash", string(bytes))
-
-  return nil
+func (user *User) SetPassword(plainPassword string) {
+    bytes, _ := bcrypt.GenerateFromPassword([]byte(plainPassword), 14) 
+    user.PasswordHash = string(bytes)
 }
 
 func (user *User) CheckPassword(password string) bool {
-  err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+    err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 
-  return err == nil
+    return err == nil
 }
 
 func (user *User) FullName() string {
-  return fmt.Sprintf("%s %s", user.FirstName, user.LastName)
+    return fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 }
