@@ -5,14 +5,14 @@ import (
     "net/http"
     "github.com/casbin/casbin"
     "github.com/alexkarpovich/quiqstee-user/lib"
-    "github.com/alexkarpovich/quiqstee-user/database/models"
+    "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 func Authorizer(e *casbin.Enforcer) func(next http.Handler) http.Handler {
     return func(next http.Handler) http.Handler {
         fn := func(w http.ResponseWriter, r *http.Request) {
-            role := models.Anonymous
-            user, ok := r.Context().Value("user").(*models.User)
+            role := users.Anonymous
+            user, ok := r.Context().Value("user").(*users.User)
             if ok {
                 role = user.Role
             }

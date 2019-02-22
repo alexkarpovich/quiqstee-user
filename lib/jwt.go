@@ -5,7 +5,7 @@ import (
   "fmt"
   "time"
   "github.com/dgrijalva/jwt-go"
-  "github.com/alexkarpovich/quiqstee-user/database/models"
+  "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 type TokenClaims struct {
@@ -15,7 +15,7 @@ type TokenClaims struct {
   Img string `json:"img"`
 }
 
-func NewToken(user *models.User) string {
+func NewToken(user *users.User) string {
   token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims {
     jwt.StandardClaims{
       ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),

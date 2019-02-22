@@ -6,13 +6,13 @@ import (
     "net/http"
     "github.com/alexkarpovich/quiqstee-user/lib"
     "github.com/alexkarpovich/quiqstee-user/database"
-    "github.com/alexkarpovich/quiqstee-user/database/models"
+    "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 func CurrentUser(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-        var user models.User
+        var user users.User
         reqToken := r.Header.Get("Authorization")
 
         if len(reqToken) > 0 {
@@ -27,7 +27,7 @@ func CurrentUser(next http.Handler) http.Handler {
             }
 
             if claims != nil {
-                database.Db.Where("id=? and status=?", claims.Uid, models.Active).First(&user)
+                database.Db.Where("id=? and status=?", claims.Uid, users.Active).First(&user)
 
                 if user.ID != 0 {
                     ctx := context.WithValue(r.Context(), "user", &user)

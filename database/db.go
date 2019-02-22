@@ -6,7 +6,8 @@ import (
   "log"
   "github.com/jinzhu/gorm"
   _ "github.com/jinzhu/gorm/dialects/postgres"
-  "github.com/alexkarpovich/quiqstee-user/database/models"
+  "github.com/alexkarpovich/quiqstee-user/database/users"
+  "github.com/alexkarpovich/quiqstee-user/database/regs"
 )
 
 var Db *gorm.DB
@@ -27,7 +28,7 @@ func InitDB() {
   //defer Db.Close()
 
   db.LogMode(true)
-  db.AutoMigrate(&models.User{})
+  db.AutoMigrate(&users.User{}, &regs.Registration{})
 
   Db = db
 }

@@ -2,7 +2,7 @@ package structs
 
 import (
   "github.com/alexkarpovich/quiqstee-user/database"
-  "github.com/alexkarpovich/quiqstee-user/database/models"
+  "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 type Login struct {
@@ -11,9 +11,9 @@ type Login struct {
 }
 
 func (l *Login) Validate() bool {
-  var user models.User
+  var user users.User
 
-  database.Db.Where("email=? and status=?", l.Email, models.Active).First(&user)
+  database.Db.Where("email=? and status=?", l.Email, users.Active).First(&user)
 
   return user.ID != 0 && user.CheckPassword(l.Password)
 }
