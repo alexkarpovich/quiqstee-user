@@ -13,21 +13,21 @@ import (
 )
 
 func (h *RootHandler) Signup(w http.ResponseWriter, r *http.Request) {
-    var sus structs.Signup
-    err := json.NewDecoder(r.Body).Decode(&sus)
+    var s structs.Signup
+    err := json.NewDecoder(r.Body).Decode(&s)
     defer r.Body.Close()
     if err != nil {
         lib.SendJsonError(w, "Invalid request data", http.StatusBadRequest)
         return
     }
 
-    if !sus.Validate() {
-        lib.SendJsonError(w, "User already exists", http.StatusBadRequest)
+    if !s.Validate() {
+        lib.SendJsonError(w, s.Errors, http.StatusBadRequest)
         return
     }
 
     reg := regs.Registration{
-        Email: sus.Email,
+        Email: s.Email,
     }
     database.Db.Create(&reg)
     go email.SendSignup(&reg)
@@ -48,7 +48,7 @@ func (h *RootHandler) ConfirmSignup(w http.ResponseWriter, r *http.Request) {
     s.Token = vars["token"]
 
     if !s.Validate() {
-        lib.SendJsonError(w, "Invalid data", http.StatusBadRequest)
+        lib.SendJsonError(w, s.Errors, http.StatusBadRequest)
         return
     }
 
@@ -66,20 +66,19 @@ func (h *RootHandler) ConfirmSignup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RootHandler) Login(w http.ResponseWriter, r *http.Request) {
-    var lis structs.Login
-    var user users.User
-    err := json.NewDecoder(r.Body).Decode(&lis)
+    var s structs.Login
+    
+    err := json.NewDecoder(r.Body).Decode(&s)
     defer r.Body.Close()
     if err != nil {
         lib.SendJsonError(w, "Invalid request data.", http.StatusBadRequest)
         return
     }
 
-    if !lis.Validate() {
-        lib.SendJsonError(w, "Email or password is wrong.", http.StatusBadRequest)
+    if !s.Validate() {
+        lib.SendJsonError(w, s.Errors, http.StatusBadRequest)
         return
     }
 
-    database.Db.Where(&users.User{Email: lis.Email}).First(&user)
-    lib.SendJson(w, map[string]string{"token": lib.NewToken(&user)}, http.StatusOK)
+    lib.SendJson(w, map[string]string{"token": lib.NewToken(s.User)}, http.StatusOK)
 }

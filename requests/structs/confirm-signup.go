@@ -7,6 +7,7 @@ import (
 )
 
 type ConfirmSignup struct {
+    Base
     Email string
     Password string
     FirstName string
@@ -16,10 +17,15 @@ type ConfirmSignup struct {
 
 func (s *ConfirmSignup) Validate() bool {
     var reg regs.Registration
+    s.Errors = make(map[string]string)
 
     database.Db.Where("token=? and expires_at > ?", s.Token, time.Now()).First(&reg)
 
+    if reg.ID == 0 {
+        s.Errors["token"] = "Token is invalid or expired."
+    }
+
     s.Email = reg.Email
 
-    return reg.ID != 0
+    return len(s.Errors) == 0
 }

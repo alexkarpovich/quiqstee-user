@@ -1,19 +1,30 @@
 package structs
 
 import (
-  "github.com/alexkarpovich/quiqstee-user/database"
-  "github.com/alexkarpovich/quiqstee-user/database/users"
+    "github.com/alexkarpovich/quiqstee-user/database"
+    "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 type Login struct {
-  Email string `json:"email"`
-  Password string `json:"password"`
+    Base
+    Email string `json:"email"`
+    Password string `json:"password"`
+    User *users.User
 }
 
-func (l *Login) Validate() bool {
-  var user users.User
+func (s *Login) Validate() bool {
+    var user users.User
+    s.Errors = make(map[string]string)
 
-  database.Db.Where("email=? and status=?", l.Email, users.Active).First(&user)
+    database.Db.Where("email=? and status=?", s.Email, users.Active).First(&user)
 
-  return user.ID != 0 && user.CheckPassword(l.Password)
+    if user.ID == 0 {
+        s.Errors["email"] = "There is no active user with such email." 
+    } else if !user.CheckPassword(s.Password) {
+        s.Errors["password"] = "Password is incorrect."   
+    }
+
+    s.User = &user
+
+    return len(s.Errors) == 0
 }

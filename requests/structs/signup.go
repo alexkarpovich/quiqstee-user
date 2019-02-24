@@ -1,21 +1,27 @@
 package structs
 
 import (
-  "github.com/alexkarpovich/quiqstee-user/database"
-  "github.com/alexkarpovich/quiqstee-user/database/regs"
-  "github.com/alexkarpovich/quiqstee-user/database/users"
+    "github.com/alexkarpovich/quiqstee-user/database"
+    "github.com/alexkarpovich/quiqstee-user/database/regs"
+    "github.com/alexkarpovich/quiqstee-user/database/users"
 )
 
 type Signup struct {
-  Email string `json:"email"`
+    Base
+    Email string `json:"email"`
 }
 
 func (s *Signup) Validate() bool {
-  var user users.User
-  var reg regs.Registration
+    var user users.User
+    var reg regs.Registration
+    s.Errors = make(map[string]string)
 
-  database.Db.Where("email=?", s.Email).First(&user)
-  database.Db.Where("email=?", s.Email).First(&reg)
+    database.Db.Where("email=?", s.Email).First(&user)
+    database.Db.Where("email=?", s.Email).First(&reg)
 
-  return user.ID == 0 && reg.ID == 0
+    if user.ID != 0 || reg.ID != 0 {
+        s.Errors["email"] = "The email is already in use."
+    }
+
+    return len(s.Errors) == 0
 }
